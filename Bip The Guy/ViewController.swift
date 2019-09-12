@@ -7,12 +7,14 @@
 //
 
 import UIKit
-
+import AVFoundation
 class ViewController: UIViewController {
     
     // Mark Properties
 
     @IBOutlet weak var imageToPunch: UIImageView!
+    
+    var audioPlayer = AVAudioPlayer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,10 +27,28 @@ class ViewController: UIViewController {
         let shrinkValue: CGFloat = 60
         
         // shrink our image by 60 pixels
-        self.imageToPunch.bounds = CGRect(x: self.imageToPunch.bounds.origin.x + 60, y: self.imageToPunch.bounds.origin.y + 60, width: self.imageToPunch.bounds.size.width - 60, height: self.imageToPunch.bounds.size.height - 60 )
+        self.imageToPunch.bounds = CGRect(x: self.imageToPunch.bounds.origin.x + shrinkValue, y: self.imageToPunch.bounds.origin.y + shrinkValue, width: self.imageToPunch.bounds.size.width - shrinkValue, height: self.imageToPunch.bounds.size.height - shrinkValue )
         
         UIView.animate(withDuration: 0.25, delay: 0.0, usingSpringWithDamping: 0.2, initialSpringVelocity: 10.0, options: [], animations: {self.imageToPunch.bounds = bounds}, completion: nil)
     }
+    
+    func playSound(soundName: String, audioPlayer: inout AVAudioPlayer) {
+        // Can we load in the file soundName?
+        if let sound = NSDataAsset(name: soundName) {
+            // check if sound.dat is a sound file
+            do {
+                try audioPlayer = AVAudioPlayer(data: sound.data)
+                audioPlayer.play()
+            } catch {
+                // if sound.data is not a valid audio file
+                print("ERROR: data in \(soundName) couldn't be played as a sound.")
+            }
+        } else {
+            // if reading in the NSDataAsset didn't work, tell the developer / report the error
+            print("ERROR: file /(soundName) didn't load")
+        }
+    }
+    
     
     // Mark Actions
     @IBAction func libraryPressed(_ sender: UIButton) {
@@ -40,6 +60,7 @@ class ViewController: UIViewController {
 
     @IBAction func imageTapped(_ sender: UITapGestureRecognizer) {
         animateImage()
+        playSound(soundName: "punchSound", audioPlayer: &audioPlayer)
     }
 }
 
